@@ -51,7 +51,7 @@ class BackendUserHandler implements \TYPO3\CMS\Core\SingletonInterface, Middlewa
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $context = RequestBootstrap::getInternalRequestContext();
+        $context = $request->getAttribute('typo3.testing.context') ?? RequestBootstrap::getInternalRequestContext();
         if (empty($context) || empty($context->getBackendUserId())) {
             return $handler->handle($request);
         }
