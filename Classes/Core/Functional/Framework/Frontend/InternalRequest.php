@@ -15,7 +15,8 @@ namespace TYPO3\TestingFramework\Core\Functional\Framework\Frontend;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\Http\Request;
+use Psr\Http\Message\UriInterface;
+use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\TestingFramework\Core\Functional\Framework\AssignablePropertyTrait;
 use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\Internal\AbstractInstruction;
@@ -27,7 +28,7 @@ use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\Internal\AbstractI
  * It provides some convenient helper methods like ->withPageId() to easily set up a frontend request.
  * It is later turned into a request implementing PSR-7 ServerRequestInterface.
  */
-class InternalRequest extends Request implements \JsonSerializable
+class InternalRequest extends ServerRequest
 {
     use AssignablePropertyTrait;
 
@@ -35,8 +36,6 @@ class InternalRequest extends Request implements \JsonSerializable
      * @var AbstractInstruction[]
      */
     protected $instructions = [];
-
-    protected ?array $parsedBody = null;
 
     /**
      * @param array $data
@@ -215,16 +214,11 @@ class InternalRequest extends Request implements \JsonSerializable
         return $this->instructions[$identifier] ?? null;
     }
 
-    public function withParsedBody(?array $parsedBody = null): InternalRequest
+    public function withServerParams(array $serverParams): InternalRequest
     {
         $target = clone $this;
-        $target->parsedBody = $parsedBody;
+        $target->serverParams = $serverParams;
         return $target;
-    }
-
-    public function getParsedBody(): ?array
-    {
-        return $this->parsedBody;
     }
 
     /**
@@ -245,5 +239,19 @@ class InternalRequest extends Request implements \JsonSerializable
         $parameters = \GuzzleHttp\Psr7\Query::parse($query);
         $parameters[$parameterName] = $value;
         return \GuzzleHttp\Psr7\Query::build($parameters);
+    }
+
+    /**
+     * Retrieves the URI instance.
+     *
+     * This method MUST return a UriInterface instance.
+     *
+     * @link https://tools.ietf.org/html/rfc3986#section-4.3
+     * @return \Psr\Http\Message\UriInterface Returns a UriInterface instance
+     *     representing the URI of the request.
+     */
+    public function getUri(): UriInterface
+    {
+        return parent::getUri();
     }
 }
