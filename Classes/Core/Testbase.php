@@ -682,7 +682,7 @@ class Testbase
         GeneralUtility::purgeInstances();
 
         $classLoader = require $this->getPackagesPath() . '/autoload.php';
-        SystemEnvironmentBuilder::run(1, SystemEnvironmentBuilder::REQUESTTYPE_BE | SystemEnvironmentBuilder::REQUESTTYPE_CLI);
+        SystemEnvironmentBuilder::run(1, SystemEnvironmentBuilder::REQUESTTYPE_BE | SystemEnvironmentBuilder::REQUESTTYPE_CLI, false);
         $container = Bootstrap::init($classLoader);
         // Make sure output is not buffered, so command-line output can take place and
         // phpunit does not whine about changed output bufferings in tests.
