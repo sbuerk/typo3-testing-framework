@@ -28,6 +28,8 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Schema\SchemaMigrator;
 use TYPO3\CMS\Core\Database\Schema\SqlReader;
+use TYPO3\CMS\Core\Package\PackageManager;
+use TYPO3\CMS\Core\Service\DependencyOrderingService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Composer\ComposerPackageManager;
@@ -45,7 +47,7 @@ use TYPO3\TestingFramework\Composer\PackageInfo;
  */
 class Testbase
 {
-    private ComposerPackageManager $composerPackageManager;
+    protected ComposerPackageManager $composerPackageManager;
 
     /**
      * This class must be called in CLI environment as a security measure
@@ -599,6 +601,24 @@ class Testbase
                 'packagePath' => 'typo3conf/ext/' . $extensionName . '/',
             ];
         }
+
+        $dependencyOrderingService = new DependencyOrderingService();
+        $packageManager = new PackageManager(
+            $dependencyOrderingService,
+            $instancePath . '/typo3conf/PackageStates.php',
+            $instancePath
+        );
+        // PackageManager is required to create a Package instance...
+        $packageCollection = PackageCollection::fromPackageStates(
+            $this->composerPackageManager,
+            $packageManager,
+            $instancePath,
+            $packageStates['packages'],
+        );
+        $packageStates['packages'] = $packageCollection->sortPackageStates(
+            $packageStates['packages'],
+            $dependencyOrderingService
+        );
 
         $result = file_put_contents(
             $instancePath . '/typo3conf/PackageStates.php',
