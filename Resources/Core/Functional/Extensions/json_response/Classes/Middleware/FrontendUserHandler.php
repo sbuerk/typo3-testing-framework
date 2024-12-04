@@ -45,7 +45,7 @@ class FrontendUserHandler implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if ((new Typo3Version())->getMajorVersion() >= 12) {
-            $context = RequestBootstrap::getInternalRequestContext();
+            $context = $request->getAttribute('typo3.testing.context') ?? RequestBootstrap::getInternalRequestContext();
             $frontendUserId = $context->getFrontendUserId();
 
             if ($frontendUserId === null) {
@@ -72,7 +72,7 @@ class FrontendUserHandler implements MiddlewareInterface
                 );
             }
         } else {
-            $context = RequestBootstrap::getInternalRequestContext();
+            $context = $request->getAttribute('typo3.testing.context') ?? RequestBootstrap::getInternalRequestContext();
             if (empty($context) || empty($context->getFrontendUserId())) {
                 return $handler->handle($request);
             }

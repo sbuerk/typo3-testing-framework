@@ -40,13 +40,15 @@ use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder as CoreSystemEnvironmentBuilder
  */
 class SystemEnvironmentBuilder extends CoreSystemEnvironmentBuilder
 {
-    public static function run(int $entryPointLevel = 0, int $requestType = CoreSystemEnvironmentBuilder::REQUESTTYPE_FE, bool $composerMode = false)
+    protected static ?bool $composerMode = null;
+    public static function run(int $entryPointLevel = 0, int $requestType = CoreSystemEnvironmentBuilder::REQUESTTYPE_FE, ?bool $composerMode = null)
     {
+        static::$composerMode = $composerMode;
         CoreSystemEnvironmentBuilder::run($entryPointLevel, $requestType);
         Environment::initialize(
             Environment::getContext(),
             Environment::isCli(),
-            $composerMode,
+            static::usesComposerClassLoading(),
             Environment::getProjectPath(),
             Environment::getPublicPath(),
             Environment::getVarPath(),
@@ -54,5 +56,10 @@ class SystemEnvironmentBuilder extends CoreSystemEnvironmentBuilder
             Environment::getCurrentScript(),
             Environment::isWindows() ? 'WINDOWS' : 'UNIX'
         );
+    }
+
+    protected static function usesComposerClassLoading(): bool
+    {
+        return static::$composerMode ?? parent::usesComposerClassLoading();
     }
 }

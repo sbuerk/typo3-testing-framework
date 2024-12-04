@@ -197,6 +197,11 @@ class RequestBootstrap
      */
     public static function getInternalRequestContext(): ?InternalRequestContext
     {
+        if (static::getInternalRequest() !== null
+            && static::getInternalRequest()->getAttribute('typo3.testing.context') !== null
+        ) {
+            return static::getInternalRequest()->getAttribute('typo3.testing.context');
+        }
         return $_SERVER['X_TYPO3_TESTING_FRAMEWORK']['context'] ?? null;
     }
 
