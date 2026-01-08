@@ -49,6 +49,9 @@
       "composer/package-versions-deprecated": true,
       "typo3/class-alias-loader": true,
       "typo3/cms-composer-installers": true
+    },
+    "audit": {
+      "block-insecure": false
     }
   },
   "autoload": {
